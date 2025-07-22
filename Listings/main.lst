@@ -1,0 +1,513 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          
+   3          // --- Definições de Hardware para o GLCD ---
+   4          #define GlcdDataBus P1    // Porta de dados do display GLCD
+   5          sbit RS  = P2^0;          // Register Select (Comando/Dados)
+   6          sbit RW  = P2^1;          // Read/Write (Escrita no display)
+   7          sbit EN  = P2^2;          // Enable (Pulso para operação)
+   8          sbit CS1 = P2^3;          // Chip Select 1 (Seleção da metade esquerda do GLCD)
+   9          sbit CS2 = P2^4;          // Chip Select 2 (Seleção da metade direita do GLCD)
+  10          
+  11          // --- Entradas de Controle do Jogador ---
+  12          sbit BTN_LEFT  = P3^2;    // Botão para mover o veículo para a esquerda
+  13          sbit BTN_RIGHT = P3^3;    // Botão para mover o veículo para a direita
+  14          
+  15          // --- Enumerações para maior clareza e legibilidade ---
+  16          // Define tipos de glifos para o jogo
+  17          enum GlyphType {
+  18              GLYPH_EMPTY_SPACE = 0,
+  19              GLYPH_FILLED_BLOCK = 1, // Usado para o fundo escuro do túnel
+  20              GLYPH_ROAD_SIDE_DAY = 2, // Lado da pista (dia)
+  21              GLYPH_PLAYER_CAR_DAY = 3, // Veículo do jogador (dia)
+  22              GLYPH_ENEMY_CAR = 4, // Veículo inimigo
+  23              GLYPH_PLAYER_CAR_NIGHT = 5, // Veículo do jogador (noite)
+  24              GLYPH_ROAD_SIDE_NIGHT = 6, // Lado da pista (noite) - atualmente não usado, mas pode ser para variaçõe
+             -s
+  25              GLYPH_HEADLIGHT = 7 // Desenho do farol do veículo
+  26          };
+  27          
+  28          // Define tipos de colisão para o game over
+  29          enum CollisionType {
+  30              COLLISION_WALL = 0,
+  31              COLLISION_ENEMY = 1
+  32          };
+  33          
+  34          // --- Desenhos Gráficos Personalizados (Glifos) ---
+  35          // Cada glifo é uma matriz de 6 bytes, representando 6 colunas de 8 pixels de altura.
+  36          // O bit 0 é o pixel superior, o bit 7 é o pixel inferior.
+  37          code unsigned char GLYPHS[][6] = {
+  38              {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // GLYPH_EMPTY_SPACE
+  39              {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, // GLYPH_FILLED_BLOCK
+  40              {0x1F, 0x00, 0x00, 0x00, 0x00, 0x00}, // GLYPH_ROAD_SIDE_DAY
+  41              {0x0A, 0x1F, 0x12, 0x12, 0x1F, 0x0A}, // GLYPH_PLAYER_CAR_DAY
+  42              {0x0A, 0x1F, 0x12, 0x12, 0x1F, 0x0A}, // GLYPH_ENEMY_CAR
+  43              {0xF5, 0xE0, 0xED, 0xED, 0xE0, 0xF5}, // GLYPH_PLAYER_CAR_NIGHT
+  44              {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, // GLYPH_ROAD_SIDE_NIGHT
+  45              {0x18, 0x10, 0x00, 0x00, 0x10, 0x18}, // GLYPH_HEADLIGHT
+  46          };
+  47          
+  48          // --- Conjunto de Caracteres para Mensagens (LETRAS) ---
+  49          // Cada glifo é uma matriz de 6 bytes. Comentários agora refletem o glifo visual.
+  50          //Os conjuntos de caracteres formam a frase "VAIDENOVO!"
+  51          code unsigned char LETRAS[13][6] = {
+  52              {0x3E, 0x41, 0x41, 0x41, 0x3E, 0x00},    
+  53              {0x7F, 0x02, 0x0C, 0x30, 0x7F, 0x00},    
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 2   
+
+  54              {0x7F, 0x41, 0x41, 0x41, 0x3E, 0x00},    
+  55              {0x7F, 0x49, 0x49, 0x49, 0x41, 0x00},    
+  56              {0x1F, 0x20, 0x40, 0x20, 0x1F, 0x00},    
+  57              {0x3E, 0x41, 0x41, 0x41, 0x22, 0x00},    
+  58              {0x01, 0x01, 0x7F, 0x01, 0x01, 0x00},    
+  59              {0x41, 0x41, 0x7F, 0x41, 0x41, 0x00},    
+  60              {0x02, 0x01, 0x59, 0x09, 0x06, 0x00},    
+  61              {0x7E, 0x09, 0x09, 0x09, 0x7E, 0x00},    
+  62              {0x00, 0x00, 0x5F, 0x00, 0x00, 0x00},    
+  63              {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},    
+  64              {0x3F, 0x40, 0x40, 0x40, 0x3F, 0x00},    
+  65          };
+  66          
+  67          // --- Conjunto de Caracteres para Números (NUMEROS) ---
+  68          code unsigned char NUMEROS[13][6] = {
+  69              {0x3E, 0x45, 0x49, 0x51, 0x3E, 0x00}, // 0: Dígito '0'
+  70              {0x00, 0x21, 0x7F, 0x01, 0x00, 0x00}, // 1: Dígito '1'
+  71              {0x23, 0x45, 0x49, 0x51, 0x21, 0x00}, // 2: Dígito '2'
+  72              {0x42, 0x41, 0x51, 0x69, 0x46, 0x00}, // 3: Dígito '3'
+  73              {0x0C, 0x14, 0x24, 0x7F, 0x04, 0x00}, // 4: Dígito '4'
+  74              {0x72, 0x51, 0x51, 0x51, 0x4E, 0x00}, // 5: Dígito '5'
+  75              {0x1E, 0x29, 0x49, 0x49, 0x06, 0x00}, // 6: Dígito '6'
+  76              {0x40, 0x47, 0x48, 0x50, 0x60, 0x00}, // 7: Dígito '7'
+  77              {0x36, 0x49, 0x49, 0x49, 0x36, 0x00}, // 8: Dígito '8'
+  78              {0x30, 0x49, 0x49, 0x4A, 0x3C, 0x00}, // 9: Dígito '9'
+  79              {0x00, 0x00, 0x06, 0x06, 0x00, 0x00}, // 10: Caractere '.' (ponto decimal)
+  80              {0x7F, 0x08, 0x14, 0x22, 0x41, 0x00}, // 11: Caractere 'k'
+  81              {0xFE, 0x60, 0x18, 0x60, 0xFE, 0x00}, // 12: Caractere 'M'
+  82          };
+  83          
+  84          // --- Dados da Pista (Representação em Linhas) ---
+  85          // Agora usamos uma matriz 2D para as linhas da pista, o que simplifica o acesso e a manipulação.
+  86          #define TRACK_HEIGHT 8 // Número de linhas visíveis da pista
+  87          #define TRACK_WIDTH 10 // Número de colunas da pista
+  88          idata unsigned char track[TRACK_HEIGHT][TRACK_WIDTH];
+  89          
+  90          // --- Posição do Veículo do Jogador ---
+  91          unsigned char playerCarPosition = 4; // Coluna inicial do veículo (centro da pista)
+  92          
+  93          // --- Limites Dinâmicos da Pista (Paredes) ---
+  94          unsigned char leftBoundary = 0;  // Coluna da parede esquerda
+  95          unsigned char rightBoundary = 9; // Coluna da parede direita
+  96          
+  97          // --- Variáveis de Controle do Jogo ---
+  98          unsigned char enemySpawnCounter = 0; // Contador para espaçar a aparição de inimigos
+  99          unsigned char randomSeed = 3;        // Semente para geração pseudo-aleatória
+ 100          enum CollisionType collisionType = COLLISION_WALL; // Indica o tipo de colisão
+ 101          unsigned int distanceTraveled = 0;   // Distância percorrida em décimos de quilômetro (ex: 12 = 1.2km)
+ 102          
+ 103          // --- Estado do Ambiente de Jogo ---
+ 104          bit tunnelModeActive = 0; // Sinaliza se o jogo está no modo túnel (noite)
+ 105          
+ 106          // --- Constantes de Jogo ---
+ 107          #define TUNNEL_MODE_DISTANCE 150 // Distância para ativar o modo túnel (15.0 km)
+ 108          #define VICTORY_DISTANCE 201     // Distância para a vitória (20.1 km)
+ 109          
+ 110          // --- Rotina de Atraso de Tempo ---
+ 111          // Cria um atraso simples, útil para controlar a velocidade das operações do GLCD e do jogo.
+ 112          void customDelay(int milliseconds) {
+ 113   1          int i, j; // Declarado no início da função
+ 114   1          for(i = 0; i < milliseconds; i++)
+ 115   1              for(j = 0; j < 10; j++); // Loop de calibração para o atraso
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 3   
+
+ 116   1      }
+ 117          
+ 118          // --- Funções de Controle do GLCD ---
+ 119          // Seleciona o chip de controle do GLCD para a página esquerda (primeira metade).
+ 120          void Glcd_SelectLeftPage() { CS1 = 0; CS2 = 1; }
+ 121          // Seleciona o chip de controle do GLCD para a página direita (segunda metade).
+ 122          void Glcd_SelectRightPage() { CS1 = 1; CS2 = 0; }
+ 123          
+ 124          // Envia um comando para o GLCD.
+ 125          void Glcd_SendCommand(char command) {
+ 126   1          GlcdDataBus = command; // Carrega o comando no barramento de dados
+ 127   1          RS = 0; RW = 0;        // Seleciona modo Comando e Escrita
+ 128   1          EN = 1; customDelay(1); EN = 0; customDelay(1); // Pulso de Enable
+ 129   1      }
+ 130          
+ 131          // Envia dados para o GLCD.
+ 132          void Glcd_SendData(char dataByte) {
+ 133   1          GlcdDataBus = dataByte; // Carrega os dados no barramento
+ 134   1          RS = 1; RW = 0;        // Seleciona modo Dados e Escrita
+ 135   1          EN = 1; customDelay(1); EN = 0; customDelay(1); // Pulso de Enable
+ 136   1      }
+ 137          
+ 138          // Desenha um caractere/símbolo personalizado no GLCD.
+ 139          void Glcd_DrawGlyph(unsigned char *symbolData) {
+ 140   1          int i; // Declarado no início da função
+ 141   1          for(i = 0; i < 6; i++) // Itera pelas 6 colunas do glifo
+ 142   1              Glcd_SendData(symbolData[i]);
+ 143   1      }
+ 144          
+ 145          // Renderiza uma linha completa da pista no GLCD.
+ 146          void Glcd_RenderTrackLine(unsigned char *lineData, int lineLength) {
+ 147   1          int i; // Declarado no início da função
+ 148   1          for(i = 0; i < lineLength; i++) // Percorre os elementos da linha
+ 149   1              Glcd_DrawGlyph(GLYPHS[lineData[i]]); // Desenha o glifo correspondente
+ 150   1      }
+ 151          
+ 152          // Inverte os bits de um byte (útil para adaptar caracteres ao GLCD se necessário).
+ 153          // Renomeada para 'invertByteBits' para clareza.
+ 154          unsigned char invertByteBits(unsigned char b) {
+ 155   1          b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+ 156   1          b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+ 157   1          b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+ 158   1          return b;
+ 159   1      }
+ 160          
+ 161          // Exibe a pontuação (distância percorrida) na parte direita do GLCD.
+ 162          void displayScore() {
+ 163   1          unsigned char scoreDigits[6]; // Buffer para os caracteres da pontuação "12.3km"
+ 164   1          unsigned int tempDistance = distanceTraveled; // Usa uma cópia para manipulação
+ 165   1          int i, j; // Declarado no início da função
+ 166   1      
+ 167   1          // Converte a distância em dígitos individuais
+ 168   1          scoreDigits[0] = tempDistance / 100;
+ 169   1          scoreDigits[1] = (tempDistance / 10) % 10;
+ 170   1          scoreDigits[2] = 10; // Índice para o '.' nos NUMEROS
+ 171   1          scoreDigits[3] = tempDistance % 10;
+ 172   1          scoreDigits[4] = 11; // Índice para 'k' nos NUMEROS
+ 173   1          scoreDigits[5] = 12; // Índice para 'm' nos NUMEROS
+ 174   1      
+ 175   1          Glcd_SelectRightPage(); // Seleciona a página direita do GLCD
+ 176   1          Glcd_SendCommand(0x40); // Define a coluna inicial
+ 177   1          Glcd_SendCommand(0xBA); // Define a linha (page) inicial
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 4   
+
+ 178   1      
+ 179   1          // Desenha cada caractere do placar
+ 180   1          for(i = 0; i < 6; i++) {
+ 181   2              for(j = 0; j < 6; j++) {
+ 182   3                  Glcd_SendData(invertByteBits(NUMEROS[scoreDigits[i]][j]));
+ 183   3              }
+ 184   2          }
+ 185   1      }
+ 186          
+ 187          // --- Gerenciamento da Pista ---
+ 188          // Desloca todas as linhas existentes para baixo e adiciona uma nova linha no topo da pista.
+ 189          // Agora opera sobre a matriz 2D 'track'.
+ 190          void scrollTrackDownAndAddTopLine(unsigned char *newTrackLine) {
+ 191   1          int i, j; // Declarado no início da função
+ 192   1          // Desloca as linhas existentes para baixo
+ 193   1          for(i = TRACK_HEIGHT - 1; i > 0; i--) {
+ 194   2              for(j = 0; j < TRACK_WIDTH; j++) {
+ 195   3                  track[i][j] = track[i-1][j];
+ 196   3              }
+ 197   2          }
+ 198   1          // Adiciona a nova linha no topo (índice 0)
+ 199   1          for(j = 0; j < TRACK_WIDTH; j++) {
+ 200   2              track[0][j] = newTrackLine[j];
+ 201   2          }
+ 202   1      }
+ 203          
+ 204          // Atualiza a posição lateral do veículo do jogador com base nos botões.
+ 205          void handlePlayerInput() {
+ 206   1          static bit prevBtnLeftState = 1;  // Estado anterior do botão esquerdo
+ 207   1          static bit prevBtnRightState = 1; // Estado anterior do botão direito
+ 208   1      
+ 209   1          // Detecta borda de descida no botão esquerdo (pressionado)
+ 210   1          if (BTN_LEFT == 0 && prevBtnLeftState == 1) {
+ 211   2              if (playerCarPosition > 0) { // Garante que não saia da tela
+ 212   3                  playerCarPosition--; // Move o veículo para a esquerda
+ 213   3              }
+ 214   2          }
+ 215   1          prevBtnLeftState = BTN_LEFT;
+ 216   1      
+ 217   1          // Detecta borda de descida no botão direito (pressionado)
+ 218   1          if (BTN_RIGHT == 0 && prevBtnRightState == 1) {
+ 219   2              if (playerCarPosition < TRACK_WIDTH - 1) { // Garante que não saia da tela
+ 220   3                  playerCarPosition++; // Move o veículo para a direita
+ 221   3              }
+ 222   2          }
+ 223   1          prevBtnRightState = BTN_RIGHT;
+ 224   1      }
+ 225          
+ 226          // Gera o conteúdo de uma nova linha da pista, incluindo paredes e possíveis inimigos.
+ 227          void generateNextTrackLine(unsigned char *generatedLine) {
+ 228   1          int i; // Declarado no início da função
+ 229   1          unsigned char objectPosition; // Posição para objetos na nova linha
+ 230   1      
+ 231   1          // Inicializa a nova linha com espaços vazios
+ 232   1          for(i = 0; i < TRACK_WIDTH; i++) generatedLine[i] = GLYPH_EMPTY_SPACE;
+ 233   1      
+ 234   1          // --- Geração Pseudo-Aleatória Aprimorada ---
+ 235   1          // Usa uma combinação de fatores para uma semente mais variada.
+ 236   1          // O operador XOR (^) e adição com um número primo podem aumentar a aleatoriedade.
+ 237   1          randomSeed = (randomSeed * 17 + playerCarPosition * 31 + enemySpawnCounter * 23 + track[1][4] + 13) % 
+             -251;
+ 238   1          enemySpawnCounter++; // Incrementa o contador de frames para controle de inimigos
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 5   
+
+ 239   1      
+ 240   1          // --- Lógica de Movimento das Paredes da Pista ---
+ 241   1          // Faz a parede esquerda mover-se entre as colunas 0 e 1
+ 242   1          if ((randomSeed % 5) < 2 && leftBoundary < 1) leftBoundary++;
+ 243   1          else if ((randomSeed % 5) > 3 && leftBoundary > 0) leftBoundary--;
+ 244   1      
+ 245   1          // Faz a parede direita mover-se entre as colunas 8 e 9
+ 246   1          if ((randomSeed % 7) < 2 && rightBoundary < 9) rightBoundary++;
+ 247   1          else if ((randomSeed % 7) > 4 && rightBoundary > 8) rightBoundary--;
+ 248   1      
+ 249   1          // Coloca os glifos de parede na nova linha
+ 250   1          generatedLine[leftBoundary]  = GLYPH_ROAD_SIDE_DAY; // Ou GLYPH_ROAD_SIDE_NIGHT se aplicável
+ 251   1          generatedLine[rightBoundary] = GLYPH_ROAD_SIDE_DAY;
+ 252   1      
+ 253   1          // --- Geração de Veículos Inimigos ---
+ 254   1          // A cada poucos frames (controlado por enemySpawnCounter e randomSeed), gera um inimigo
+ 255   1          if(enemySpawnCounter >= (randomSeed % 3) + 5) {
+ 256   2              enemySpawnCounter = 0; // Reseta o contador
+ 257   2              // Posição aleatória para o inimigo (evita paredes e a posição do jogador na próxima linha)
+ 258   2              // Garante que objectPosition esteja sempre dentro de [1, TRACK_WIDTH - 2]
+ 259   2              // O limite de (TRACK_WIDTH - 2) para o módulo garante que não apareça nas paredes externas.
+ 260   2              objectPosition = 1 + (randomSeed % (TRACK_WIDTH - 2)); 
+ 261   2              
+ 262   2              generatedLine[objectPosition] = GLYPH_ENEMY_CAR;  // Coloca o glifo de veículo inimigo
+ 263   2          }
+ 264   1      
+ 265   1          distanceTraveled++; // Incrementa a distância percorrida (0.1km por linha)
+ 266   1      
+ 267   1          // Ativa o modo túnel após uma certa distância
+ 268   1          if(distanceTraveled >= TUNNEL_MODE_DISTANCE) {
+ 269   2              tunnelModeActive = 1;
+ 270   2          }
+ 271   1      }
+ 272          
+ 273          // --- Renderização da Pista no GLCD ---
+ 274          // Desenha todas as linhas da pista, aplicando os efeitos de dia/noite e farol.
+ 275          // Agora usa a matriz 2D 'track' para renderização.
+ 276          void renderTrackOnGlcd() {
+ 277   1          int row, col; // Declarado no início da função
+ 278   1          unsigned char tempDisplayLine[TRACK_WIDTH]; // Buffer temporário para a linha a ser exibida
+ 279   1          int distanceToPlayerLine; // Declarado no início da função
+ 280   1          unsigned char safePlayerPosOffset; // Variável para armazenar o offset seguro
+ 281   1      
+ 282   1          Glcd_SelectLeftPage(); // As linhas da pista são desenhadas na página esquerda
+ 283   1      
+ 284   1          // Processa e desenha as linhas da pista (da linha 0 à TRACK_HEIGHT-1)
+ 285   1          for(row = 0; row < TRACK_HEIGHT; row++) {
+ 286   2              // Copia a linha atual para um buffer temporário para modificação
+ 287   2              for(col = 0; col < TRACK_WIDTH; col++) {
+ 288   3                  tempDisplayLine[col] = track[row][col];
+ 289   3              }
+ 290   2      
+ 291   2              // --- Efeitos Visuais do Modo Túnel ---
+ 292   2              if (tunnelModeActive) {
+ 293   3                  // Transforma espaços vazios em pixels preenchidos (escurece o fundo)
+ 294   3                  for(col = 0; col < TRACK_WIDTH; col++) {
+ 295   4                      if (tempDisplayLine[col] == GLYPH_EMPTY_SPACE) {
+ 296   5                          tempDisplayLine[col] = GLYPH_FILLED_BLOCK;
+ 297   5                      }
+ 298   4                  }
+ 299   3      
+ 300   3                  // Esconde veículos inimigos fora do alcance do farol
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 6   
+
+ 301   3                  // A linha do jogador é a última (TRACK_HEIGHT - 1)
+ 302   3                  // Distância é calculada a partir da linha do jogador para cima.
+ 303   3                  distanceToPlayerLine = (TRACK_HEIGHT - 1) - row;
+ 304   3      
+ 305   3                  for(col = 0; col < TRACK_WIDTH; col++) {
+ 306   4                      if (track[row][col] == GLYPH_ENEMY_CAR) { // Verifica o glifo original da pista
+ 307   5                          bit isVisible = 0;
+ 308   5                          // Lógica de visibilidade do farol (cone gradual)
+ 309   5                          if (distanceToPlayerLine == 1 && col == playerCarPosition) {
+ 310   6                              isVisible = 1;
+ 311   6                          } else if (distanceToPlayerLine == 2) {
+ 312   6                              // Proteção para playerCarPosition - 1
+ 313   6                              safePlayerPosOffset = (playerCarPosition > 0) ? (playerCarPosition - 1) : 0;
+ 314   6                              if (col >= safePlayerPosOffset && col <= playerCarPosition + 1) isVisible = 1;
+ 315   6                          } else if (distanceToPlayerLine == 3) {
+ 316   6                              // Proteção para playerCarPosition - 2
+ 317   6                              safePlayerPosOffset = (playerCarPosition > 1) ? (playerCarPosition - 2) : 0;
+ 318   6                              if (col >= safePlayerPosOffset && col <= playerCarPosition + 2) isVisible = 1;
+ 319   6                          }
+ 320   5      
+ 321   5                          if (!isVisible) {
+ 322   6                              tempDisplayLine[col] = GLYPH_FILLED_BLOCK; // Inimigo invisível vira fundo escuro
+ 323   6                          }
+ 324   5                      }
+ 325   4                  }
+ 326   3      
+ 327   3                  // Desenha o farol apenas na linha logo acima do jogador (TRACK_HEIGHT - 2)
+ 328   3                  if(row == TRACK_HEIGHT - 2) {
+ 329   4                      if(tempDisplayLine[playerCarPosition] == GLYPH_FILLED_BLOCK || tempDisplayLine[playerCarPo
+             -sition] == GLYPH_EMPTY_SPACE) {
+ 330   5                          tempDisplayLine[playerCarPosition] = GLYPH_HEADLIGHT; // Coloca o glifo do farol na po
+             -sição do jogador
+ 331   5                      }
+ 332   4                  }
+ 333   3              } else { // Fora do modo túnel
+ 334   3                  // Remove qualquer glifo de farol (garante que não apareça durante o dia)
+ 335   3                  for(col = 0; col < TRACK_WIDTH; col++) {
+ 336   4                      if(tempDisplayLine[col] == GLYPH_HEADLIGHT) {
+ 337   5                          tempDisplayLine[col] = GLYPH_EMPTY_SPACE; // FAROL vira ESPAÇO
+ 338   5                      }
+ 339   4                  }
+ 340   3              }
+ 341   2      
+ 342   2              // Envia os comandos para desenhar a linha processada no GLCD
+ 343   2              Glcd_SendCommand(0x40);         // Define a coluna de início (sempre 0)
+ 344   2              Glcd_SendCommand(0xB8 + row);   // Define a página (linha visual) no GLCD
+ 345   2              Glcd_RenderTrackLine(tempDisplayLine, TRACK_WIDTH); // Desenha os glifos da linha
+ 346   2          }
+ 347   1      
+ 348   1          // --- Processamento e Desenho da Linha do Jogador (última linha da tela) ---
+ 349   1          // Prepara a última linha para exibir o carro do jogador
+ 350   1          for(col = 0; col < TRACK_WIDTH; col++) { // Declarado no início da função
+ 351   2              tempDisplayLine[col] = track[TRACK_HEIGHT - 1][col]; // Copia o estado original da última linha
+ 352   2      
+ 353   2              if(tunnelModeActive) {
+ 354   3                  // Escurece o fundo na linha do jogador também
+ 355   3                  if(tempDisplayLine[col] == GLYPH_EMPTY_SPACE) tempDisplayLine[col] = GLYPH_FILLED_BLOCK;
+ 356   3                  // Garante que inimigos na linha do jogador estejam escondidos (não devem aparecer aqui)
+ 357   3                  if(tempDisplayLine[col] == GLYPH_ENEMY_CAR) tempDisplayLine[col] = GLYPH_FILLED_BLOCK;
+ 358   3              }
+ 359   2          }
+ 360   1      
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 7   
+
+ 361   1          // Insere o glifo do veículo do jogador na sua posição atual
+ 362   1          tempDisplayLine[playerCarPosition] = tunnelModeActive ? GLYPH_PLAYER_CAR_NIGHT : GLYPH_PLAYER_CAR_DAY;
+ 363   1          // Garante que as paredes sejam desenhadas corretamente na linha do jogador,
+ 364   1          // caso o movimento aleatório as tenha removido ou se o jogador estiver muito perto.
+ 365   1          tempDisplayLine[0] = GLYPH_ROAD_SIDE_DAY; // Parede esquerda na coluna 0
+ 366   1          tempDisplayLine[TRACK_WIDTH - 1] = GLYPH_ROAD_SIDE_DAY; // Parede direita na última coluna
+ 367   1      
+ 368   1          // Envia os comandos para desenhar a linha final do jogador no GLCD
+ 369   1          Glcd_SendCommand(0x40);             // Define a coluna de início
+ 370   1          Glcd_SendCommand(0xBF);             // Define a página (última linha visual)
+ 371   1          Glcd_RenderTrackLine(tempDisplayLine, TRACK_WIDTH); // Desenha a linha do jogador
+ 372   1      
+ 373   1          displayScore(); // Atualiza e exibe a pontuação
+ 374   1      }
+ 375          
+ 376          // --- Verificação de Colisão ---
+ 377          // Determina se o veículo do jogador colidiu com uma parede ou um inimigo.
+ 378          bit checkGameCollision() {
+ 379   1          // Colisão com a parede na linha do jogador
+ 380   1          if (track[TRACK_HEIGHT - 1][playerCarPosition] == GLYPH_ROAD_SIDE_DAY) {
+ 381   2              collisionType = COLLISION_WALL; // Tipo de colisão: parede
+ 382   2              return 1; // Houve colisão
+ 383   2          }
+ 384   1          // Colisão com outro veículo na linha do jogador
+ 385   1          if (track[TRACK_HEIGHT - 1][playerCarPosition] == GLYPH_ENEMY_CAR) {
+ 386   2              collisionType = COLLISION_ENEMY; // Tipo de colisão: inimigo
+ 387   2              return 1; // Houve colisão
+ 388   2          }
+ 389   1          return 0; // Nenhuma colisão detectada
+ 390   1      }
+ 391          
+ 392          // --- Tela de Vitória ---
+ 393          // Exibe uma mensagem de vitória na tela quando o objetivo é alcançado.
+ 394          void showVictoryScreen() {
+ 395   1          // Mensagem "VC VENCEU!" usando os índices do array LETRAS
+ 396   1          code unsigned char victoryMessage[10] = {4,5,11,4,3,1,5,3,12,10}; // V, C, ESPAÇO, V, E, N, C, E, U, !
+ 397   1          int i; // Declarado no início da função
+ 398   1          
+ 399   1          Glcd_SelectRightPage(); // Usa a página direita para a mensagem
+ 400   1          Glcd_SendCommand(0x40); // Define a coluna inicial
+ 401   1          Glcd_SendCommand(0xBC); // Define a linha para a mensagem de vitória
+ 402   1      
+ 403   1          // Desenha cada caractere da mensagem
+ 404   1          for(i = 0; i < 10; i++) {
+ 405   2              Glcd_DrawGlyph(LETRAS[victoryMessage[i]]);
+ 406   2          }
+ 407   1      
+ 408   1          while(1); // Mantém a tela de vitória indefinidamente
+ 409   1      }
+ 410          
+ 411          // --- Tela de Game Over ---
+ 412          // Exibe uma mensagem de fim de jogo e o motivo da colisão.
+ 413          void showGameOverScreen() {
+ 414   1          int i; 
+ 415   1          // MENSAGEM AJUSTADA: "VAIDENOVO!" (10 caracteres)
+ 416   1          // V=4, A=9, I=7, D=2, E=3, N=1, O=0, V=4, O=0, !=10
+ 417   1          code unsigned char wallCollisionMsg[10] = {4, 9, 7, 2, 3, 1, 0, 4, 0, 10}; // "VAIDENOVO!" (colisão co
+             -m parede)
+ 418   1          code unsigned char enemyCollisionMsg[10] = {9,5,7,2,3,1,6,3,10,10}; // "ACIDENTE!!" (colisão com inimi
+             -go)
+ 419   1      
+ 420   1          Glcd_SelectRightPage(); // Usa a página direita para a mensagem
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 14:52:16 PAGE 8   
+
+ 421   1          Glcd_SendCommand(0x40); // Define a coluna inicial
+ 422   1          Glcd_SendCommand(0xBC); // Define a linha para a mensagem de game over
+ 423   1      
+ 424   1          // O loop desenha 10 caracteres, o tamanho exato dos arrays de mensagem
+ 425   1          for(i = 0; i < 10; i++) { 
+ 426   2              if (collisionType == COLLISION_WALL) { // Se foi colisão com a parede
+ 427   3                  Glcd_DrawGlyph(LETRAS[wallCollisionMsg[i]]);
+ 428   3              } else { // Se foi colisão com um veículo inimigo
+ 429   3                  Glcd_DrawGlyph(LETRAS[enemyCollisionMsg[i]]);
+ 430   3              }
+ 431   2          }
+ 432   1      
+ 433   1          while(1); // Mantém a tela de game over indefinidamente
+ 434   1      }
+ 435          
+ 436          // --- Função Principal do Programa (Main) ---
+ 437          void main() {
+ 438   1          unsigned char newGeneratedLine[TRACK_WIDTH]; // Buffer para a nova linha da pista
+ 439   1          int k; // Declarado no início da função
+ 440   1      
+ 441   1          // Inicialização da pista: Preenche as primeiras linhas para que o jogo comece visível.
+ 442   1          for (k = 0; k < TRACK_HEIGHT; k++) {
+ 443   2              generateNextTrackLine(newGeneratedLine);    // Cria o conteúdo de uma nova linha
+ 444   2              scrollTrackDownAndAddTopLine(newGeneratedLine); // Adiciona a linha na pista e move as outras
+ 445   2          }
+ 446   1          renderTrackOnGlcd(); // Renderiza a pista inicial no GLCD
+ 447   1      
+ 448   1          // --- Loop Principal do Jogo ---
+ 449   1          // Este loop executa continuamente as etapas do jogo.
+ 450   1          while(1) {
+ 451   2              customDelay(20);             // Controla a velocidade geral do jogo
+ 452   2              handlePlayerInput();         // Processa a entrada do jogador para mover o veículo
+ 453   2              generateNextTrackLine(newGeneratedLine); // Cria o próximo segmento da pista
+ 454   2      
+ 455   2              // Verifica se o jogador alcançou a distância de vitória
+ 456   2              if(distanceTraveled >= VICTORY_DISTANCE) {
+ 457   3                  showVictoryScreen(); // Encerra o jogo com a tela de vitória
+ 458   3              }
+ 459   2      
+ 460   2              scrollTrackDownAndAddTopLine(newGeneratedLine); // Atualiza a "rolagem" da pista
+ 461   2      
+ 462   2              // Verifica se ocorreu alguma colisão na linha do jogador
+ 463   2              if (checkGameCollision()) {
+ 464   3                  showGameOverScreen(); // Exibe a tela de Game Over e encerra
+ 465   3              }
+ 466   2      
+ 467   2              renderTrackOnGlcd(); // Renderiza o estado atual do jogo no display
+ 468   2          }
+ 469   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1548    ----
+   CONSTANT SIZE    =    234    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8      61
+   IDATA SIZE       =     80    ----
+   BIT SIZE         =      3       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

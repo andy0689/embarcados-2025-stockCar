@@ -1,0 +1,564 @@
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                    07/22/2025  14:52:16  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.4.0, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\STARTUP.obj, .\Objects\main.obj TO .\Objects\stockCar PRINT (.\Listings\stockCar.m
+>> 51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\STARTUP.obj (?C_STARTUP)
+  .\Objects\main.obj (MAIN)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_INIT)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDOPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CSTOPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?UIDIV)
+
+
+LINK MAP OF MODULE:  .\Objects\stockCar (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0008H     UNIT         ?DT?MAIN
+                    0010H     0010H                  *** GAP ***
+            BIT     0020H.0   0000H.3   UNIT         ?BI?MAIN
+            BIT     0020H.3   0000H.1   UNIT         _BIT_GROUP_
+                    0020H.4   0000H.4                *** GAP ***
+            DATA    0021H     0027H     UNIT         _DATA_GROUP_
+            IDATA   0048H     0050H     UNIT         ?ID?MAIN
+            IDATA   0098H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     07FDH                  *** GAP ***
+            CODE    0800H     01DBH     UNIT         ?PR?RENDERTRACKONGLCD?MAIN
+            CODE    09DBH     0115H     UNIT         ?PR?_GENERATENEXTTRACKLINE?MAIN
+            CODE    0AF0H     00EAH     UNIT         ?CO?MAIN
+            CODE    0BDAH     00A4H     UNIT         ?C?LIB_CODE
+            CODE    0C7EH     009CH     UNIT         ?PR?DISPLAYSCORE?MAIN
+            CODE    0D1AH     008CH     UNIT         ?C_C51STARTUP
+            CODE    0DA6H     006FH     UNIT         ?PR?_SCROLLTRACKDOWNANDADDTOPLINE?MAIN
+            CODE    0E15H     0053H     UNIT         ?PR?_GLCD_RENDERTRACKLINE?MAIN
+            CODE    0E68H     004CH     UNIT         ?PR?MAIN?MAIN
+            CODE    0EB4H     0044H     UNIT         ?PR?_GLCD_DRAWGLYPH?MAIN
+            CODE    0EF8H     003DH     UNIT         ?PR?SHOWGAMEOVERSCREEN?MAIN
+            CODE    0F35H     002FH     UNIT         ?PR?SHOWVICTORYSCREEN?MAIN
+            CODE    0F64H     002EH     UNIT         ?PR?_CUSTOMDELAY?MAIN
+            CODE    0F92H     002CH     UNIT         ?PR?_INVERTBYTEBITS?MAIN
+            CODE    0FBEH     0027H     UNIT         ?PR?HANDLEPLAYERINPUT?MAIN
+            CODE    0FE5H     001DH     UNIT         ?C_INITSEG
+            CODE    1002H     001AH     UNIT         ?PR?CHECKGAMECOLLISION?MAIN
+            CODE    101CH     0011H     UNIT         ?PR?_GLCD_SENDCOMMAND?MAIN
+            CODE    102DH     000CH     UNIT         ?PR?_GLCD_SENDDATA?MAIN
+            CODE    1039H     0005H     UNIT         ?PR?GLCD_SELECTLEFTPAGE?MAIN
+            CODE    103EH     0005H     UNIT         ?PR?GLCD_SELECTRIGHTPAGE?MAIN
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 2
+
+
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\stockCar (?C_STARTUP)
+
+
+SEGMENT                                           BIT_GROUP          DATA_GROUP 
+  +--> CALLED SEGMENT                          START    LENGTH     START    LENGTH
+----------------------------------------------------------------------------------
+?C_C51STARTUP                                  -----    -----      -----    -----
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN                                  -----    -----      0021H    000CH
+  +--> ?PR?_GENERATENEXTTRACKLINE?MAIN
+  +--> ?PR?_SCROLLTRACKDOWNANDADDTOPLINE?MAIN
+  +--> ?PR?RENDERTRACKONGLCD?MAIN
+  +--> ?PR?_CUSTOMDELAY?MAIN
+  +--> ?PR?HANDLEPLAYERINPUT?MAIN
+  +--> ?PR?SHOWVICTORYSCREEN?MAIN
+  +--> ?PR?CHECKGAMECOLLISION?MAIN
+  +--> ?PR?SHOWGAMEOVERSCREEN?MAIN
+
+?PR?_GENERATENEXTTRACKLINE?MAIN                -----    -----      002DH    0003H
+
+?PR?_SCROLLTRACKDOWNANDADDTOPLINE?MAIN         -----    -----      002DH    0005H
+
+?PR?RENDERTRACKONGLCD?MAIN                     0020H.3  0000H.1    002DH    000FH
+  +--> ?PR?GLCD_SELECTLEFTPAGE?MAIN
+  +--> ?PR?_GLCD_SENDCOMMAND?MAIN
+  +--> ?PR?_GLCD_RENDERTRACKLINE?MAIN
+  +--> ?PR?DISPLAYSCORE?MAIN
+
+?PR?_GLCD_SENDCOMMAND?MAIN                     -----    -----      -----    -----
+  +--> ?PR?GLCD_SELECTRIGHTPAGE?MAIN
+  +--> ?PR?_CUSTOMDELAY?MAIN
+
+?PR?_GLCD_RENDERTRACKLINE?MAIN                 -----    -----      003CH    0007H
+  +--> ?PR?_GLCD_SENDCOMMAND?MAIN
+  +--> ?CO?MAIN
+  +--> ?PR?_GLCD_DRAWGLYPH?MAIN
+
+?PR?_GLCD_DRAWGLYPH?MAIN                       -----    -----      0043H    0005H
+  +--> ?CO?MAIN
+  +--> ?PR?_GLCD_SENDDATA?MAIN
+
+?PR?_GLCD_SENDDATA?MAIN                        -----    -----      -----    -----
+  +--> ?PR?_CUSTOMDELAY?MAIN
+
+?PR?DISPLAYSCORE?MAIN                          -----    -----      003CH    000AH
+  +--> ?PR?_GLCD_SENDCOMMAND?MAIN
+  +--> ?CO?MAIN
+  +--> ?PR?_INVERTBYTEBITS?MAIN
+  +--> ?PR?_GLCD_SENDDATA?MAIN
+
+?PR?SHOWVICTORYSCREEN?MAIN                     -----    -----      002DH    0002H
+  +--> ?PR?_GLCD_SENDCOMMAND?MAIN
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 3
+
+
+  +--> ?CO?MAIN
+  +--> ?PR?_GLCD_DRAWGLYPH?MAIN
+
+?PR?SHOWGAMEOVERSCREEN?MAIN                    -----    -----      002DH    0002H
+  +--> ?PR?_GLCD_SENDCOMMAND?MAIN
+  +--> ?CO?MAIN
+  +--> ?PR?_GLCD_DRAWGLYPH?MAIN
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\stockCar (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:0D1AH         SEGMENT       ?C_C51STARTUP
+  I:0098H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0D1DH         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:0D1AH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:0D1AH         LINE#         133
+  C:0D1CH         LINE#         134
+  C:0D1DH         LINE#         135
+  C:0D1EH         LINE#         136
+  C:0D20H         LINE#         185
+  C:0D23H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  B:0020H.2       PUBLIC        tunnelModeActive
+  D:00B0H         PUBLIC        P3
+  D:0008H         PUBLIC        playerCarPosition
+  C:0DACH         PUBLIC        _scrollTrackDownAndAddTopLine
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 4
+
+
+  D:0009H         PUBLIC        randomSeed
+  D:000AH         PUBLIC        distanceTraveled
+  C:0F6CH         PUBLIC        _customDelay
+  B:00A0H.2       PUBLIC        EN
+  D:000CH         PUBLIC        enemySpawnCounter
+  I:0048H         PUBLIC        track
+  C:0F35H         PUBLIC        showVictoryScreen
+  B:00A0H.0       PUBLIC        RS
+  C:0E68H         PUBLIC        main
+  B:00A0H.1       PUBLIC        RW
+  C:0B6EH         PUBLIC        NUMEROS
+  C:1021H         PUBLIC        _Glcd_SendCommand
+  C:1002H         PUBLIC        checkGameCollision
+  C:0800H         PUBLIC        renderTrackOnGlcd
+  C:103EH         PUBLIC        Glcd_SelectRightPage
+  C:0EF8H         PUBLIC        showGameOverScreen
+  C:0E22H         PUBLIC        _Glcd_RenderTrackLine
+  B:00B0H.3       PUBLIC        BTN_RIGHT
+  B:00A0H.3       PUBLIC        CS1
+  C:0F92H         PUBLIC        _invertByteBits
+  B:00A0H.4       PUBLIC        CS2
+  C:0B20H         PUBLIC        LETRAS
+  C:1039H         PUBLIC        Glcd_SelectLeftPage
+  C:0AF0H         PUBLIC        GLYPHS
+  C:102DH         PUBLIC        _Glcd_SendData
+  D:000DH         PUBLIC        rightBoundary
+  B:00B0H.2       PUBLIC        BTN_LEFT
+  C:0EC6H         PUBLIC        _Glcd_DrawGlyph
+  C:0FBEH         PUBLIC        handlePlayerInput
+  C:09E1H         PUBLIC        _generateNextTrackLine
+  D:000EH         PUBLIC        collisionType
+  D:000FH         PUBLIC        leftBoundary
+  C:0C7EH         PUBLIC        displayScore
+  -------         PROC          L?0151
+  -------         ENDPROC       L?0151
+  -------         PROC          _CUSTOMDELAY
+  D:0006H         SYMBOL        milliseconds
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:0F6CH         LINE#         112
+  C:0F6CH         LINE#         114
+  C:0F7CH         LINE#         115
+  C:0F91H         LINE#         116
+  -------         ENDPROC       _CUSTOMDELAY
+  -------         PROC          GLCD_SELECTLEFTPAGE
+  C:1039H         LINE#         120
+  -------         ENDPROC       GLCD_SELECTLEFTPAGE
+  -------         PROC          GLCD_SELECTRIGHTPAGE
+  C:103EH         LINE#         122
+  -------         ENDPROC       GLCD_SELECTRIGHTPAGE
+  C:101CH         SYMBOL        L?0150
+  -------         PROC          L?0149
+  -------         ENDPROC       L?0149
+  C:101CH         SYMBOL        L?0150
+  -------         PROC          _GLCD_SENDCOMMAND
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 5
+
+
+  D:0007H         SYMBOL        command
+  C:1021H         LINE#         125
+  C:1021H         LINE#         126
+  C:1023H         LINE#         127
+  C:1025H         LINE#         128
+  -------         ENDPROC       _GLCD_SENDCOMMAND
+  -------         PROC          _GLCD_SENDDATA
+  D:0007H         SYMBOL        dataByte
+  C:102DH         LINE#         132
+  C:102DH         LINE#         133
+  C:102FH         LINE#         134
+  C:1031H         LINE#         135
+  -------         ENDPROC       _GLCD_SENDDATA
+  C:0EC1H         SYMBOL        L?0147
+  -------         PROC          L?0146
+  -------         ENDPROC       L?0146
+  C:0EC1H         SYMBOL        L?0147
+  -------         PROC          _GLCD_DRAWGLYPH
+  D:0043H         SYMBOL        symbolData
+  -------         DO            
+  D:0046H         SYMBOL        i
+  -------         ENDDO         
+  C:0EC6H         LINE#         139
+  C:0ECCH         LINE#         141
+  C:0ED1H         LINE#         142
+  C:0EF7H         LINE#         143
+  -------         ENDPROC       _GLCD_DRAWGLYPH
+  -------         PROC          L?0148
+  -------         ENDPROC       L?0148
+  -------         PROC          _GLCD_RENDERTRACKLINE
+  D:003CH         SYMBOL        lineData
+  D:003FH         SYMBOL        lineLength
+  -------         DO            
+  D:0041H         SYMBOL        i
+  -------         ENDDO         
+  C:0E22H         LINE#         146
+  C:0E2CH         LINE#         148
+  C:0E42H         LINE#         149
+  C:0E67H         LINE#         150
+  -------         ENDPROC       _GLCD_RENDERTRACKLINE
+  -------         PROC          _INVERTBYTEBITS
+  D:0007H         SYMBOL        b
+  C:0F92H         LINE#         154
+  C:0F92H         LINE#         155
+  C:0FA1H         LINE#         156
+  C:0FB1H         LINE#         157
+  C:0FBDH         LINE#         158
+  C:0FBDH         LINE#         159
+  -------         ENDPROC       _INVERTBYTEBITS
+  -------         PROC          DISPLAYSCORE
+  -------         DO            
+  D:003CH         SYMBOL        scoreDigits
+  D:0002H         SYMBOL        tempDistance
+  D:0042H         SYMBOL        i
+  D:0044H         SYMBOL        j
+  -------         ENDDO         
+  C:0C7EH         LINE#         162
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 6
+
+
+  C:0C7EH         LINE#         164
+  C:0C82H         LINE#         168
+  C:0C8FH         LINE#         169
+  C:0CA3H         LINE#         170
+  C:0CA6H         LINE#         171
+  C:0CB3H         LINE#         172
+  C:0CB6H         LINE#         173
+  C:0CB9H         LINE#         175
+  C:0CB9H         LINE#         176
+  C:0CBCH         LINE#         177
+  C:0CC1H         LINE#         180
+  C:0CC6H         LINE#         181
+  C:0CCBH         LINE#         182
+  C:0CF3H         LINE#         183
+  C:0D06H         LINE#         184
+  C:0D19H         LINE#         185
+  -------         ENDPROC       DISPLAYSCORE
+  -------         PROC          L?0153
+  -------         ENDPROC       L?0153
+  -------         PROC          _SCROLLTRACKDOWNANDADDTOPLINE
+  D:002DH         SYMBOL        newTrackLine
+  -------         DO            
+  D:0006H         SYMBOL        i
+  D:0030H         SYMBOL        j
+  -------         ENDDO         
+  C:0DACH         LINE#         190
+  C:0DB2H         LINE#         193
+  C:0DB6H         LINE#         194
+  C:0DBBH         LINE#         195
+  C:0DD3H         LINE#         196
+  C:0DE1H         LINE#         197
+  C:0DEAH         LINE#         199
+  C:0DEFH         LINE#         200
+  C:0E06H         LINE#         201
+  C:0E14H         LINE#         202
+  -------         ENDPROC       _SCROLLTRACKDOWNANDADDTOPLINE
+  -------         PROC          HANDLEPLAYERINPUT
+  -------         DO            
+  B:0020H.0       SYMBOL        prevBtnLeftState
+  B:0020H.1       SYMBOL        prevBtnRightState
+  -------         ENDDO         
+  C:0FBEH         LINE#         205
+  C:0FBEH         LINE#         210
+  C:0FC4H         LINE#         211
+  C:0FCBH         LINE#         212
+  C:0FCDH         LINE#         213
+  C:0FCDH         LINE#         214
+  C:0FCDH         LINE#         215
+  C:0FD1H         LINE#         218
+  C:0FD7H         LINE#         219
+  C:0FDEH         LINE#         220
+  C:0FE0H         LINE#         221
+  C:0FE0H         LINE#         222
+  C:0FE0H         LINE#         223
+  C:0FE4H         LINE#         224
+  -------         ENDPROC       HANDLEPLAYERINPUT
+  -------         PROC          L?0152
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 7
+
+
+  -------         ENDPROC       L?0152
+  -------         PROC          _GENERATENEXTTRACKLINE
+  D:002DH         SYMBOL        generatedLine
+  -------         DO            
+  D:0006H         SYMBOL        i
+  D:0007H         SYMBOL        objectPosition
+  -------         ENDDO         
+  C:09E1H         LINE#         227
+  C:09E7H         LINE#         232
+  C:0A03H         LINE#         237
+  C:0A3BH         LINE#         238
+  C:0A3DH         LINE#         242
+  C:0A56H         LINE#         243
+  C:0A65H         LINE#         246
+  C:0A7EH         LINE#         247
+  C:0A8DH         LINE#         250
+  C:0A9EH         LINE#         251
+  C:0AA9H         LINE#         255
+  C:0AC4H         LINE#         256
+  C:0AC7H         LINE#         260
+  C:0ACCH         LINE#         262
+  C:0ADCH         LINE#         263
+  C:0ADCH         LINE#         265
+  C:0AE4H         LINE#         268
+  C:0AEDH         LINE#         269
+  C:0AEFH         LINE#         270
+  C:0AEFH         LINE#         271
+  -------         ENDPROC       _GENERATENEXTTRACKLINE
+  -------         PROC          RENDERTRACKONGLCD
+  -------         DO            
+  D:002DH         SYMBOL        row
+  D:002FH         SYMBOL        col
+  D:0031H         SYMBOL        tempDisplayLine
+  D:0006H         SYMBOL        distanceToPlayerLine
+  D:003BH         SYMBOL        safePlayerPosOffset
+  -------         DO            
+  B:0020H.3       SYMBOL        isVisible
+  -------         ENDDO         
+  -------         ENDDO         
+  C:0800H         LINE#         276
+  C:0800H         LINE#         282
+  C:0803H         LINE#         285
+  C:0808H         LINE#         287
+  C:080DH         LINE#         288
+  C:0821H         LINE#         289
+  C:082FH         LINE#         292
+  C:0835H         LINE#         294
+  C:083AH         LINE#         295
+  C:0842H         LINE#         296
+  C:0844H         LINE#         297
+  C:0844H         LINE#         298
+  C:0852H         LINE#         303
+  C:085CH         LINE#         305
+  C:0861H         LINE#         306
+  C:0875H         LINE#         307
+  C:0877H         LINE#         309
+  C:0886H         LINE#         310
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 8
+
+
+  C:0888H         LINE#         311
+  C:0891H         LINE#         313
+  C:08A2H         LINE#         314
+  C:08C9H         LINE#         315
+  C:08D1H         LINE#         317
+  C:08E3H         LINE#         318
+  C:090AH         LINE#         319
+  C:090AH         LINE#         321
+  C:090DH         LINE#         322
+  C:0913H         LINE#         323
+  C:0913H         LINE#         324
+  C:0913H         LINE#         325
+  C:0924H         LINE#         328
+  C:092CH         LINE#         329
+  C:093AH         LINE#         330
+  C:093CH         LINE#         331
+  C:093CH         LINE#         332
+  C:093CH         LINE#         333
+  C:093EH         LINE#         335
+  C:0943H         LINE#         336
+  C:094CH         LINE#         337
+  C:094EH         LINE#         338
+  C:094EH         LINE#         339
+  C:095CH         LINE#         340
+  C:095CH         LINE#         343
+  C:0961H         LINE#         344
+  C:0966H         LINE#         345
+  C:0969H         LINE#         346
+  C:097FH         LINE#         350
+  C:0984H         LINE#         351
+  C:0992H         LINE#         353
+  C:0995H         LINE#         355
+  C:099FH         LINE#         357
+  C:09AAH         LINE#         358
+  C:09AAH         LINE#         359
+  C:09B8H         LINE#         362
+  C:09C8H         LINE#         365
+  C:09CBH         LINE#         366
+  C:09CEH         LINE#         369
+  C:09D3H         LINE#         370
+  C:09D5H         LINE#         371
+  C:09D8H         LINE#         373
+  -------         ENDPROC       RENDERTRACKONGLCD
+  -------         PROC          CHECKGAMECOLLISION
+  C:1002H         LINE#         378
+  C:1002H         LINE#         380
+  C:100CH         LINE#         381
+  C:100FH         LINE#         382
+  C:1011H         LINE#         383
+  C:1011H         LINE#         385
+  C:1015H         LINE#         386
+  C:1018H         LINE#         387
+  C:101AH         LINE#         388
+  C:101AH         LINE#         389
+  C:101BH         LINE#         390
+  -------         ENDPROC       CHECKGAMECOLLISION
+  -------         PROC          SHOWVICTORYSCREEN
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 9
+
+
+  -------         DO            
+  C:0BBCH         SYMBOL        victoryMessage
+  D:002DH         SYMBOL        i
+  -------         ENDDO         
+  C:0F35H         LINE#         394
+  C:0F35H         LINE#         399
+  C:0F35H         LINE#         400
+  C:0F38H         LINE#         401
+  C:0F3DH         LINE#         404
+  C:0F42H         LINE#         405
+  C:0F4FH         LINE#         406
+  C:0F62H         LINE#         408
+  -------         ENDPROC       SHOWVICTORYSCREEN
+  -------         PROC          SHOWGAMEOVERSCREEN
+  -------         DO            
+  D:002DH         SYMBOL        i
+  C:0BC6H         SYMBOL        wallCollisionMsg
+  C:0BD0H         SYMBOL        enemyCollisionMsg
+  -------         ENDDO         
+  C:0EF8H         LINE#         413
+  C:0EF8H         LINE#         420
+  C:0EF8H         LINE#         421
+  C:0EFBH         LINE#         422
+  C:0F00H         LINE#         425
+  C:0F05H         LINE#         426
+  C:0F09H         LINE#         427
+  C:0F11H         LINE#         428
+  C:0F13H         LINE#         429
+  C:0F20H         LINE#         430
+  C:0F20H         LINE#         431
+  C:0F33H         LINE#         433
+  -------         ENDPROC       SHOWGAMEOVERSCREEN
+  -------         PROC          MAIN
+  -------         DO            
+  D:0021H         SYMBOL        newGeneratedLine
+  D:002BH         SYMBOL        k
+  -------         ENDDO         
+  C:0E68H         LINE#         437
+  C:0E68H         LINE#         442
+  C:0E6DH         LINE#         443
+  C:0E70H         LINE#         444
+  C:0E73H         LINE#         445
+  C:0E86H         LINE#         446
+  C:0E89H         LINE#         450
+  C:0E89H         LINE#         451
+  C:0E90H         LINE#         452
+  C:0E93H         LINE#         453
+  C:0E96H         LINE#         456
+  C:0EA1H         LINE#         457
+  C:0EA4H         LINE#         458
+  C:0EA4H         LINE#         460
+  C:0EA7H         LINE#         463
+  C:0EACH         LINE#         464
+  C:0EAFH         LINE#         465
+  C:0EAFH         LINE#         467
+  C:0EB2H         LINE#         468
+  -------         ENDPROC       MAIN
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  07/22/2025  14:52:16  PAGE 10
+
+
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        ?C?CLDOPTR
+  C:0BDAH         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+  -------         MODULE        ?C?CSTOPTR
+  C:0C07H         PUBLIC        ?C?CSTOPTR
+  -------         ENDMOD        ?C?CSTOPTR
+
+  -------         MODULE        ?C?UIDIV
+  C:0C29H         PUBLIC        ?C?UIDIV
+  -------         ENDMOD        ?C?UIDIV
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0721H BYTE (89%) *
+******************************************************************************
+
+Program Size: data=136.4 xdata=0 code=2118
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
