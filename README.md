@@ -41,7 +41,7 @@ Detecção de Colisão: O jogo detecta colisões do veículo do jogador com os v
 
 Pontuação: Um contador de distância percorrida é exibido na tela, aumentando conforme o jogador avança.
 
-Modo Túnel: Após atingir uma certa distância (15.0 km), o jogo entra em um "modo túnel", onde a tela escurece e a visibilidade é limitada a um cone de luz ao redor do veículo do jogador. Os inimigos só são visíveis dentro deste cone.
+Modo Túnel: Após atingir uma certa distância (+ou- 15.0 km), o jogo entra em um "modo túnel", onde a tela escurece e a visibilidade é limitada a um cone de luz ao redor do veículo do jogador. Os inimigos só são visíveis dentro deste cone.
 
 Condições de Fim de Jogo:
 
@@ -81,11 +81,11 @@ Controle do Jogador: Pressione os botões virtuais BTN_LEFT e BTN_RIGHT no Prote
 
 Inimigos: Veículos inimigos aparecerão aleatoriamente na pista.
 
-Modo Túnel: Após 15.0 km, a tela escurecerá e o efeito de farol será ativado. Inimigos só serão visíveis dentro do cone de luz.
+Modo Túnel: Após mais ou menos 15.0 km, a tela escurecerá e o efeito de farol será ativado. Inimigos só serão visíveis dentro do cone de luz.
 
 Colisão: Se houver colisão com parede ou inimigo, a simulação pausará e exibirá a mensagem de "GAME OVER" com o motivo.
 
-Vitória: Ao atingir 20.1 km, a simulação pausará e exibirá "VC VENCEU!".
+Vitória: Ao atingir mais ou menos 20 km, a simulação pausará e exibirá "VC VENCEU!".
 
 Estrutura do Código
 O código-fonte é organizado em funções que gerenciam diferentes aspectos do jogo:
