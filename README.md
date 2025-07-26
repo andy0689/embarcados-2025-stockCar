@@ -1,3 +1,12 @@
+## Informações Institucionais
+
+- **Nome da disciplina:** Projeto de Sistemas Computacionais Embarcados  
+- **Nome do docente:** Emerson Carlos Pedrino  
+- **Nome do curso:** Engenharia de Computação  
+- **Departamento:** Departamento de Computação - UFSCar  
+
+---
+
 # embarcados-2025
 jogo stock car
 
